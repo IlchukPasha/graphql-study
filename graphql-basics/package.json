@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node src/index.js"
+    "start": "nodemon src/index.js --exec babel-node",
+    "start-prev": "babel-node src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,5 +13,8 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "graphql-yoga": "^1.14.10"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
   }
 }
