@@ -51,11 +51,8 @@ input UpdateCommentInput {
 
 type User {
   id: ID!
+  name: String!  
   email: String!
-  password: String!
-  firstName: String!
-  lastName: String!
-  age: Int
   posts: [Post!]!
   comments: [Comment!]!
 }
