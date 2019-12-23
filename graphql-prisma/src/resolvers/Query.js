@@ -1,5 +1,5 @@
 const Query = {
-  users(parent, args, { db, prisma }, info) {
+  users(parent, args, { prisma }, info) {
     const opArgs = {};
 
     if (args.query) {
@@ -14,17 +14,40 @@ const Query = {
 
     return prisma.query.users(opArgs, info);
   },
-  posts(_, args, { prisma }, info) {
-    const opArgs = {}
+  myPosts(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
+
+    const opArgs = {
+      where: {
+        author: {
+          id: userId
+        }
+      }
+    };
 
     if (args.query) {
-      opArgs.where = {
-        OR: [{
+      opArgs.where.OR = [{
           title_contains: args.query
-        }, {
+      }, {
           body_contains: args.query
-        }]
-      };
+      }]
+    }
+
+    return prisma.query.posts(opArgs, info);
+  },
+  posts(_, args, { prisma }, info) {
+    const opArgs = {
+      where: {
+        published: true
+      }
+    };
+
+    if (args.query) {
+      opArgs.where.OR = [{
+        title_contains: args.query
+      }, {
+        body_contains: args.query
+      }];
     }
 
     return prisma.query.posts(opArgs, info);
@@ -32,24 +55,37 @@ const Query = {
   comments(_, args, { prisma }, info) {
     return prisma.query.comments(null, info);
   },
-  me() {
-    return {
-      id: '3454353456',
-      email: 'email@mail.com',
-      password: 'password',
-      firstName: 'firstName',
-      lastName: 'lastName',
-      age: 25
-    };
+  me(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
+    
+    return prisma.query.user({
+      where: {
+        id: userId
+      }
+    });
   },
-  post() {
-    return {
-      id: '43534543',
-      title: 'title',
-      body: 'text',
-      published: true
-    };
-  },
+  async post(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request, false);
+
+    const posts = await prisma.query.posts({
+      where: {
+        id: args.id,
+        OR: [{
+          published: true
+        }, {
+          author: {
+            id: userId
+          }
+        }]
+      }
+    }, info);
+
+    if (posts.length === 0) {
+      throw new Error('Post not found');
+    }
+
+    return posts[0];
+  }
 };
 
 export { Query as default };
