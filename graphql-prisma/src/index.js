@@ -1,30 +1,19 @@
 import { GraphQLServer } from 'graphql-yoga';
 
+import { resolvers, fragmentReplacements } from './resolvers/index';
 import prisma from './prisma';
-import Query from './resolvers/Query';
-import Mutation from './resolvers/Mutation';
-import Subscription from './resolvers/Subscription';
-import User from './resolvers/User';
-import Post from './resolvers/Post';
-import Comment from './resolvers/Comment';
 
 
 const server = new GraphQLServer({
   typeDefs: './src/schema.graphql',
-  resolvers: {
-    Query,
-    Mutation,
-    Subscription,
-    User,
-    Post,
-    Comment
-  },
+  resolvers,
   context(request) {
     return {
       prisma,
       request
     };
-  }
+  },
+  fragmentReplacements
 });
 
 server.start(() => {
